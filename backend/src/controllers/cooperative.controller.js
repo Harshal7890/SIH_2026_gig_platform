@@ -1,0 +1,40 @@
+import { registerUser, loginUser } from "../services/user.service.js";
+import { Cooperative } from "../models/cooperative.model.js";
+
+const registerCooperative = async (req, res) => {
+  const { email, password, name, mobileNumber, registrationNumber, address } =
+    req.body;
+
+  const user = await registerUser(
+    email,
+    password,
+    name,
+    mobileNumber,
+    "cooperative"
+  );
+
+  const cooperative = await Cooperative.create({
+    userId: user._id,
+    name,
+    registrationNumber,
+    address,
+  });
+
+  res.status(201).json({
+    message: "Cooperative registered successfully",
+    cooperative,
+  });
+};
+
+const loginCooperative = async (req, res) => {
+  const { email, password } = req.body;
+
+  const user = await loginUser(email, password);
+
+  res.status(200).json({
+    message: "Login successful",
+    user,
+  });
+};
+
+export { registerCooperative, loginCooperative };

@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import errorMiddleware from "./middlewares/error.middleware.js";
 import ExpressError from "./utils/ExpressError.js";
+import cooperativeRouter from "./routes/cooperative.routes.js";
 
 const app = express();
 
@@ -13,6 +14,8 @@ app.use(
 );
 
 app.use(express.json());
+
+app.use("/cooperative", cooperativeRouter);
 
 app.get("/health", (_req, res) => {
   res.status(200).json({
