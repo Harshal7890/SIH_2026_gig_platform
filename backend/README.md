@@ -82,6 +82,20 @@ Base user record shared across all roles. Passwords are bcrypt-hashed before sav
 
 ---
 
+## Authentication
+
+Protected routes require the following header:
+
+| Header    | Type     | Description                          |
+| --------- | -------- | ------------------------------------ |
+| `user-id` | ObjectId | The `_id` of the authenticated User  |
+
+The `authenticateUser` middleware looks up the user by this header. If the user is not found, the request is rejected with `401`.
+
+Some routes additionally use `requireRole(role)` which checks that the authenticated user's `roles` array includes the required role. If not, the request is rejected with `403`.
+
+---
+
 ## API Endpoints
 
 ### Health Check
@@ -274,17 +288,19 @@ Login as a worker.
 
 #### `GET /worker/`
 
-List workers. Optionally filter by cooperative.
+List workers belonging to the authenticated cooperative.
 
-**Query Parameters**
+🔒 **Protected** — requires `user-id` header + `cooperative` role.
 
-| Parameter       | Type     | Required | Description                        |
-| --------------- | -------- | -------- | ---------------------------------- |
-| `cooperativeId` | ObjectId |          | Filter workers by cooperative ID   |
+**Request Headers**
+
+| Header    | Type     | Required | Description                         |
+| --------- | -------- | -------- | ----------------------------------- |
+| `user-id` | ObjectId | ✅       | The `_id` of the authenticated User |
 
 **Response `200`**
 
-Workers are returned with populated user data (`name`, `email`, `mobileNumber`).
+Workers are automatically filtered to those belonging to the authenticated cooperative. User data (`name`, `email`, `mobileNumber`) is populated.
 
 ```json
 {
@@ -298,7 +314,7 @@ Workers are returned with populated user data (`name`, `email`, `mobileNumber`).
         "email": "string",
         "mobileNumber": "string"
       },
-      "cooperativeId": "ObjectId | null",
+      "cooperativeId": "ObjectId",
       "skills": ["string"],
       "experience": 0,
       "certifications": ["string"],
@@ -309,6 +325,33 @@ Workers are returned with populated user data (`name`, `email`, `mobileNumber`).
       "updatedAt": "ISO date"
     }
   ]
+}
+```
+
+**Error `401`**
+
+```json
+{
+  "success": false,
+  "message": "Unauthorized"
+}
+```
+
+**Error `403`**
+
+```json
+{
+  "success": false,
+  "message": "Requires cooperative role"
+}
+```
+
+**Error `404`**
+
+```json
+{
+  "success": false,
+  "message": "Cooperative profile not found"
 }
 ```
 
@@ -399,10 +442,12 @@ All errors follow this format:
 }
 ```
 
-| Status Code | Meaning                |
-| ----------- | ---------------------- |
-| `401`       | Invalid credentials    |
-| `500`       | Internal server error  |
+| Status Code | Meaning                                |
+| ----------- | -------------------------------------- |
+| `401`       | Invalid credentials / Unauthorized     |
+| `403`       | Missing required role                  |
+| `404`       | Resource not found                     |
+| `500`       | Internal server error                  |
 
 ---
 
@@ -414,7 +459,7 @@ All errors follow this format:
 | `GET`  | `/cooperative/`          | List all cooperatives                    |
 | `POST` | `/cooperative/register`  | Register a cooperative                   |
 | `POST` | `/cooperative/login`     | Login as cooperative                     |
-| `GET`  | `/worker/`               | List workers (optional `?cooperativeId`) |
+| `GET`  | `/worker/`               | List cooperative's workers 🔒           |
 | `POST` | `/worker/register`       | Register a worker                        |
 | `POST` | `/worker/login`          | Login as worker                          |
 | `POST` | `/customer/register`     | Register a customer                      |

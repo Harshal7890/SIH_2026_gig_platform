@@ -1,4 +1,5 @@
 import { Worker } from "../models/worker.model.js";
+import { Cooperative } from "../models/cooperative.model.js";
 import { registerUser, loginUser } from "../services/user.service.js";
 
 const registerWorker = async (req, res) => {
@@ -49,18 +50,20 @@ const loginWorker = async (req, res) => {
 };
 
 const listWorkers = async (req, res) => {
-  const { cooperativeId } = req.query;
+  const cooperative = await Cooperative.findOne({
+    userId: req.user._id,
+  });
 
-  const filter = {};
-
-  if (cooperativeId) {
-    filter.cooperativeId = cooperativeId;
+  if (!cooperative) {
+    return res.status(404).json({
+      success: false,
+      message: "Cooperative profile not found",
+    });
   }
 
-  const workers = await Worker.find(filter).populate(
-    "userId",
-    "name email mobileNumber"
-  );
+  const workers = await Worker.find({
+    cooperativeId: cooperative._id,
+  }).populate("userId", "name email mobileNumber");
 
   res.status(200).json({
     success: true,

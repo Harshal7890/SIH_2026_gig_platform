@@ -4,10 +4,14 @@ import {
   loginWorker,
   registerWorker,
 } from "../controllers/worker.controller.js";
+import {
+  authenticateUser,
+  requireRole,
+} from "../middlewares/auth.middleware.js";
 
 const router = Router();
 
-router.route("/").get(listWorkers);
+router.get("/", authenticateUser, requireRole("cooperative"), listWorkers);
 router.route("/register").post(registerWorker);
 router.route("/login").post(loginWorker);
 
