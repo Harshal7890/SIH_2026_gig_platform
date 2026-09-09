@@ -37,4 +37,13 @@ const loginCooperative = async (req, res) => {
   });
 };
 
-export { registerCooperative, loginCooperative };
+const listCooperatives = async (req, res) => {
+  const cooperatives = await Cooperative.find();
+
+  res.status(200).json({
+    success: true,
+    cooperatives,
+  });
+};
+
+export { registerCooperative, loginCooperative, listCooperatives };
