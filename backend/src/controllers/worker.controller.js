@@ -1,5 +1,6 @@
 import { Worker } from "../models/worker.model.js";
 import { Cooperative } from "../models/cooperative.model.js";
+import { User } from "../models/user.model.js";
 import { registerUser, loginUser } from "../services/user.service.js";
 
 const registerWorker = async (req, res) => {
@@ -71,4 +72,132 @@ const listWorkers = async (req, res) => {
   });
 };
 
-export { registerWorker, loginWorker, listWorkers };
+const updateWorker = async (req, res) => {
+  const cooperative = await Cooperative.findOne({
+    userId: req.user._id,
+  });
+
+  if (!cooperative) {
+    return res.status(404).json({
+      success: false,
+      message: "Cooperative profile not found",
+    });
+  }
+
+  const worker = await Worker.findOne({
+    _id: req.params.id,
+    cooperativeId: cooperative._id,
+  });
+
+  if (!worker) {
+    return res.status(404).json({
+      success: false,
+      message: "Worker not found in your cooperative",
+    });
+  }
+
+  const allowedFields = [
+    "skills",
+    "experience",
+    "certifications",
+    "address",
+  ];
+
+  allowedFields.forEach((field) => {
+    if (req.body[field] !== undefined) {
+      worker[field] = req.body[field];
+    }
+  });
+
+  await worker.save();
+
+  res.status(200).json({
+    success: true,
+    message: "Worker updated successfully",
+    worker,
+  });
+};
+
+const deleteWorker = async (req, res) => {
+  const cooperative = await Cooperative.findOne({
+    userId: req.user._id,
+  });
+
+  if (!cooperative) {
+    return res.status(404).json({
+      success: false,
+      message: "Cooperative profile not found",
+    });
+  }
+
+  const worker = await Worker.findOneAndDelete({
+    _id: req.params.id,
+    cooperativeId: cooperative._id,
+  });
+
+  if (!worker) {
+    return res.status(404).json({
+      success: false,
+      message: "Worker not found in your cooperative",
+    });
+  }
+
+  await User.findByIdAndDelete(worker.userId);
+
+  res.status(200).json({
+    success: true,
+    message: "Worker deleted successfully",
+  });
+};
+
+const verifyWorker = async (req, res) => {
+  const { status } = req.body;
+
+  if (!status || !["pending", "verified", "rejected"].includes(status)) {
+    return res.status(400).json({
+      success: false,
+      message: "Invalid verification status. Must be: pending, verified, or rejected",
+    });
+  }
+
+  const cooperative = await Cooperative.findOne({
+    userId: req.user._id,
+  });
+
+  if (!cooperative) {
+    return res.status(404).json({
+      success: false,
+      message: "Cooperative profile not found",
+    });
+  }
+
+  const worker = await Worker.findOne({
+    _id: req.params.id,
+    cooperativeId: cooperative._id,
+  });
+
+  if (!worker) {
+    return res.status(404).json({
+      success: false,
+      message: "Worker not found in your cooperative",
+    });
+  }
+
+  worker.verification = status;
+  await worker.save();
+
+  res.status(200).json({
+    success: true,
+    message: `Worker verification status updated to '${status}'`,
+    worker,
+  });
+};
+
+export {
+  registerWorker,
+  loginWorker,
+  listWorkers,
+  updateWorker,
+  deleteWorker,
+  verifyWorker,
+};

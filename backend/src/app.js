@@ -5,6 +5,7 @@ import ExpressError from "./utils/ExpressError.js";
 import cooperativeRouter from "./routes/cooperative.routes.js";
 import workerRouter from "./routes/worker.routes.js";
 import customerRouter from "./routes/customer.routes.js";
+import serviceRouter from "./routes/service.routes.js";
 
 const app = express();
 
@@ -20,6 +21,7 @@ app.use(express.json());
 app.use("/cooperative", cooperativeRouter);
 app.use("/worker", workerRouter);
 app.use("/customer", customerRouter);
+app.use("/service", serviceRouter);
 
 app.get("/health", (_req, res) => {
   res.status(200).json({

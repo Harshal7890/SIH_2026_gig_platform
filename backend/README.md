@@ -357,6 +357,152 @@ Workers are automatically filtered to those belonging to the authenticated coope
 
 ---
 
+#### `PUT /worker/:id`
+
+Update a worker belonging to the authenticated cooperative.
+
+🔒 **Protected** — requires `user-id` header + `cooperative` role.
+
+**Request Headers**
+
+| Header    | Type     | Required | Description                         |
+| --------- | -------- | -------- | ----------------------------------- |
+| `user-id` | ObjectId | ✅       | The `_id` of the authenticated User |
+
+**URL Parameters**
+
+| Param | Type     | Description                |
+| ----- | -------- | -------------------------- |
+| `id`  | ObjectId | The `_id` of the Worker    |
+
+**Request Body**
+
+All fields are optional. Only provided fields will be updated.
+
+```json
+{
+  "skills": ["string"],
+  "experience": 0,
+  "certifications": ["string"],
+  "address": "string"
+}
+```
+
+**Response `200`**
+
+```json
+{
+  "success": true,
+  "message": "Worker updated successfully",
+  "worker": { /* Updated Worker object */ }
+}
+```
+
+**Error `404`**
+
+```json
+{
+  "success": false,
+  "message": "Worker not found in your cooperative"
+}
+```
+
+---
+
+#### `DELETE /worker/:id`
+
+Delete a worker belonging to the authenticated cooperative. Also removes the associated User record.
+
+🔒 **Protected** — requires `user-id` header + `cooperative` role.
+
+**Request Headers**
+
+| Header    | Type     | Required | Description                         |
+| --------- | -------- | -------- | ----------------------------------- |
+| `user-id` | ObjectId | ✅       | The `_id` of the authenticated User |
+
+**URL Parameters**
+
+| Param | Type     | Description                |
+| ----- | -------- | -------------------------- |
+| `id`  | ObjectId | The `_id` of the Worker    |
+
+**Response `200`**
+
+```json
+{
+  "success": true,
+  "message": "Worker deleted successfully"
+}
+```
+
+**Error `404`**
+
+```json
+{
+  "success": false,
+  "message": "Worker not found in your cooperative"
+}
+```
+
+---
+
+#### `PATCH /worker/:id/verify`
+
+Update the verification status of a worker belonging to the authenticated cooperative.
+
+🔒 **Protected** — requires `user-id` header + `cooperative` role.
+
+**Request Headers**
+
+| Header    | Type     | Required | Description                         |
+| --------- | -------- | -------- | ----------------------------------- |
+| `user-id` | ObjectId | ✅       | The `_id` of the authenticated User |
+
+**URL Parameters**
+
+| Param | Type     | Description                |
+| ----- | -------- | -------------------------- |
+| `id`  | ObjectId | The `_id` of the Worker    |
+
+**Request Body**
+
+```json
+{
+  "status": "pending | verified | rejected"
+}
+```
+
+**Response `200`**
+
+```json
+{
+  "success": true,
+  "message": "Worker verification status updated to 'verified'",
+  "worker": { /* Updated Worker object */ }
+}
+```
+
+**Error `400`**
+
+```json
+{
+  "success": false,
+  "message": "Invalid verification status. Must be: pending, verified, or rejected"
+}
+```
+
+**Error `404`**
+
+```json
+{
+  "success": false,
+  "message": "Worker not found in your cooperative"
+}
+```
+
+---
+
 ### Customer
 
 #### `POST /customer/register`
@@ -459,8 +605,11 @@ All errors follow this format:
 | `GET`  | `/cooperative/`          | List all cooperatives                    |
 | `POST` | `/cooperative/register`  | Register a cooperative                   |
 | `POST` | `/cooperative/login`     | Login as cooperative                     |
-| `GET`  | `/worker/`               | List cooperative's workers 🔒           |
-| `POST` | `/worker/register`       | Register a worker                        |
-| `POST` | `/worker/login`          | Login as worker                          |
+| `GET`    | `/worker/`               | List cooperative's workers 🔒           |
+| `POST`   | `/worker/register`       | Register a worker                        |
+| `POST`   | `/worker/login`          | Login as worker                          |
+| `PUT`    | `/worker/:id`            | Update a worker 🔒                      |
+| `DELETE` | `/worker/:id`            | Delete a worker 🔒                      |
+| `PATCH`  | `/worker/:id/verify`     | Verify a worker 🔒                      |
 | `POST` | `/customer/register`     | Register a customer                      |
 | `POST` | `/customer/login`        | Login as customer                        |
