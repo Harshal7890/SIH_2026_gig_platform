@@ -357,6 +357,68 @@ Workers are automatically filtered to those belonging to the authenticated coope
 
 ---
 
+#### `POST /worker/register-by-cooperative`
+
+Register a new worker directly under the authenticated cooperative. The worker is automatically verified (`verification: "verified"`).
+
+🔒 **Protected** — requires `user-id` header + `cooperative` role.
+
+**Request Headers**
+
+| Header    | Type     | Required | Description                         |
+| --------- | -------- | -------- | ----------------------------------- |
+| `user-id` | ObjectId | ✅       | The `_id` of the authenticated User |
+
+**Request Body**
+
+```json
+{
+  "email": "string",
+  "password": "string",
+  "name": "string",
+  "mobileNumber": "string",
+  "skills": ["string"],
+  "experience": 0,
+  "certifications": ["string"],
+  "address": "string"
+}
+```
+
+> Note: `cooperativeId` is **not** required — it is automatically set to the authenticated cooperative's ID.
+
+**Response `201`**
+
+```json
+{
+  "success": true,
+  "message": "Worker registered and verified successfully",
+  "worker": {
+    "_id": "ObjectId",
+    "userId": "ObjectId",
+    "cooperativeId": "ObjectId",
+    "skills": ["string"],
+    "experience": 0,
+    "certifications": ["string"],
+    "verification": "verified",
+    "address": "string",
+    "rating": 0,
+    "createdAt": "ISO date",
+    "updatedAt": "ISO date"
+  }
+}
+```
+
+**Error `404`**
+
+```json
+{
+  "success": false,
+  "message": "Cooperative profile not found"
+}
+```
+
+---
+
 #### `PUT /worker/:id`
 
 Update a worker belonging to the authenticated cooperative.
@@ -611,5 +673,6 @@ All errors follow this format:
 | `PUT`    | `/worker/:id`            | Update a worker 🔒                      |
 | `DELETE` | `/worker/:id`            | Delete a worker 🔒                      |
 | `PATCH`  | `/worker/:id/verify`     | Verify a worker 🔒                      |
+| `POST`   | `/worker/register-by-cooperative` | Register worker under cooperative 🔒 |
 | `POST` | `/customer/register`     | Register a customer                      |
 | `POST` | `/customer/login`        | Login as customer                        |

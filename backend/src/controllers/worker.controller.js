@@ -192,6 +192,53 @@ const verifyWorker = async (req, res) => {
     worker,
   });
 };
+const registerWorkerByCooperative = async (req, res) => {
+  const cooperative = await Cooperative.findOne({
+    userId: req.user._id,
+  });
+
+  if (!cooperative) {
+    return res.status(404).json({
+      success: false,
+      message: "Cooperative profile not found",
+    });
+  }
+
+  const {
+    email,
+    password,
+    name,
+    mobileNumber,
+    skills,
+    experience,
+    certifications,
+    address,
+  } = req.body;
+
+  const user = await registerUser(
+    email,
+    password,
+    name,
+    mobileNumber,
+    "worker"
+  );
+
+  const worker = await Worker.create({
+    userId: user._id,
+    cooperativeId: cooperative._id,
+    skills,
+    experience,
+    certifications,
+    address,
+    verification: "verified",
+  });
+
+  res.status(201).json({
+    success: true,
+    message: "Worker registered and verified successfully",
+    worker,
+  });
+};
 
 export {
   registerWorker,
@@ -200,4 +247,5 @@ export {
   updateWorker,
   deleteWorker,
   verifyWorker,
+  registerWorkerByCooperative,
 };

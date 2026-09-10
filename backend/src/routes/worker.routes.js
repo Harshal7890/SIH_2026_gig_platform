@@ -6,6 +6,7 @@ import {
   updateWorker,
   deleteWorker,
   verifyWorker,
+  registerWorkerByCooperative,
 } from "../controllers/worker.controller.js";
 import {
   authenticateUser,
@@ -17,6 +18,13 @@ const router = Router();
 router.get("/", authenticateUser, requireRole("cooperative"), listWorkers);
 router.route("/register").post(registerWorker);
 router.route("/login").post(loginWorker);
+router
+  .route("/register-by-cooperative")
+  .post(
+    authenticateUser,
+    requireRole("cooperative"),
+    registerWorkerByCooperative
+  );
 router
   .route("/:id")
   .put(authenticateUser, requireRole("cooperative"), updateWorker)
