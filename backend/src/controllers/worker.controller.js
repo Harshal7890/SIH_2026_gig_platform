@@ -13,6 +13,7 @@ const registerWorker = async (req, res) => {
     experience,
     certifications,
     address,
+    verification
   } = req.body;
 
   const user = await registerUser(
@@ -30,6 +31,7 @@ const registerWorker = async (req, res) => {
     experience,
     certifications,
     address,
+    verification: verification || "pending"
   });
 
   res.status(201).json({
@@ -71,4 +73,47 @@ const listWorkers = async (req, res) => {
   });
 };
 
-export { registerWorker, loginWorker, listWorkers };
+const updateWorkerStatus = async (req, res) => {
+  const { id } = req.params;
+  const { verification } = req.body;
+
+  if (!["pending", "verified", "rejected"].includes(verification)) {
+    return res.status(400).json({
+      success: false,
+      message: "Invalid verification status. Must be pending, verified, or rejected.",
+    });
+  }
+
+  const cooperative = await Cooperative.findOne({
+    userId: req.user._id,
+  });
+
+  if (!cooperative) {
+    return res.status(404).json({
+      success: false,
+      message: "Cooperative profile not found",
+    });
+  }
+
+  const worker = await Worker.findOneAndUpdate(
+    { _id: id, cooperativeId: cooperative._id },
+    { verification },
+    { new: true }
+  ).populate("userId", "name email mobileNumber");
+
+  if (!worker) {
+    return res.status(404).json({
+      success: false,
+      message: "Worker not found or not associated with your cooperative",
+    });
+  }
+
+  res.status(200).json({
+    success: true,
+    message: `Worker verification status updated to ${verification}`,
+    worker,
+  });
+};
+
+export { registerWorker, loginWorker, listWorkers, updateWorkerStatus };
+

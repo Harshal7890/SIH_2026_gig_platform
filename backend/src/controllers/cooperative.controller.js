@@ -38,7 +38,10 @@ const loginCooperative = async (req, res) => {
 };
 
 const listCooperatives = async (req, res) => {
-  const cooperatives = await Cooperative.find();
+  const cooperatives = await Cooperative.find().populate(
+    "userId",
+    "name email mobileNumber"
+  );
 
   res.status(200).json({
     success: true,
@@ -46,4 +49,52 @@ const listCooperatives = async (req, res) => {
   });
 };
 
-export { registerCooperative, loginCooperative, listCooperatives };
+const getCooperativeProfile = async (req, res) => {
+  const cooperative = await Cooperative.findOne({
+    userId: req.user._id,
+  }).populate("userId", "name email mobileNumber roles");
+
+  if (!cooperative) {
+    return res.status(404).json({
+      success: false,
+      message: "Cooperative profile not found",
+    });
+  }
+
+  res.status(200).json({
+    success: true,
+    cooperative,
+  });
+};
+
+const updateCooperativeProfile = async (req, res) => {
+  const { name, registrationNumber, address } = req.body;
+
+  const cooperative = await Cooperative.findOneAndUpdate(
+    { userId: req.user._id },
+    { name, registrationNumber, address },
+    { new: true }
+  ).populate("userId", "name email mobileNumber roles");
+
+  if (!cooperative) {
+    return res.status(404).json({
+      success: false,
+      message: "Cooperative profile not found",
+    });
+  }
+
+  res.status(200).json({
+    success: true,
+    message: "Cooperative profile updated successfully",
+    cooperative,
+  });
+};
+
+export {
+  registerCooperative,
+  loginCooperative,
+  listCooperatives,
+  getCooperativeProfile,
+  updateCooperativeProfile,
+};
+
