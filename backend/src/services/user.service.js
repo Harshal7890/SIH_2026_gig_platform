@@ -19,17 +19,21 @@ const registerUser = async (email, password, name, mobileNumber, role) => {
   return user;
 };
 
-const loginUser = async (email, password) => {
-  const user = await User.findOne({ email }).select("+password");
+const loginUser = async (identifier, password) => {
+  // identifier can be email or mobileNumber
+  const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(identifier);
+  const query = isEmail ? { email: identifier } : { mobileNumber: identifier };
+
+  const user = await User.findOne(query).select("+password");
 
   if (!user) {
-    throw new ExpressError("Invalid email or password", 401);
+    throw new ExpressError("Invalid credentials", 401);
   }
 
   const isPasswordCorrect = await user.isPasswordCorrect(password);
 
   if (!isPasswordCorrect) {
-    throw new ExpressError("Invalid email or password", 401);
+    throw new ExpressError("Invalid credentials", 401);
   }
 
   return user;

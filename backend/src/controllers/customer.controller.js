@@ -25,9 +25,10 @@ const registerCustomer = async (req, res) => {
 };
 
 const loginCustomer = async (req, res) => {
-  const { email, password } = req.body;
+  const { email, mobileNumber, password } = req.body;
+  const identifier = email || mobileNumber;
 
-  const user = await loginUser(email, password);
+  const user = await loginUser(identifier, password);
 
   res.status(200).json({
     message: "Login successful",

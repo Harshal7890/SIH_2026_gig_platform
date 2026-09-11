@@ -1,0 +1,33 @@
+import { Link, useNavigate } from 'react-router-dom';
+import './Dashboard.css';
+
+export default function FederationDashboard() {
+  const navigate = useNavigate();
+
+  return (
+    <div className="dashboard-page">
+      <nav className="dashboard-nav" aria-label="Federation dashboard navigation">
+        <Link to="/" className="dashboard-nav-brand">
+          <span className="dashboard-nav-brand-dot" />
+          GIG Platform
+        </Link>
+        <button
+          className="dashboard-nav-logout"
+          onClick={() => navigate('/')}
+          aria-label="Logout"
+        >
+          ← Logout
+        </button>
+      </nav>
+
+      <main className="dashboard-content">
+        <div className="dashboard-placeholder">
+          <div className="dashboard-placeholder-icon">🏛️</div>
+          <h1>Federation Dashboard</h1>
+          <p>Welcome! Your dashboard is coming soon.</p>
+          <span className="dashboard-placeholder-badge">🚧 Under Construction</span>
+        </div>
+      </main>
+    </div>
+  );
+}
