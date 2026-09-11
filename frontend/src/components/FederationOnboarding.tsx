@@ -12,7 +12,7 @@ import {
   Zap,
   Info
 } from "lucide-react";
-import { CooperativeItem } from "./Navbar";
+import type { CooperativeItem } from "./Navbar";
 
 interface FederationOnboardingProps {
   onComplete?: (cooperative: CooperativeItem) => void;

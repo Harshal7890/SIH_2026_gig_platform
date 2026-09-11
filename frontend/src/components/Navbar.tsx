@@ -1,4 +1,3 @@
-import React from "react";
 import { Building2, Plus, Server, ShieldCheck, RefreshCw } from "lucide-react";
 
 export interface CooperativeItem {

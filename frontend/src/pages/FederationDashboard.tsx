@@ -17,7 +17,7 @@ import {
   Plus,
   UserPlus
 } from "lucide-react";
-import Navbar, { CooperativeItem } from "../components/Navbar";
+import Navbar, { type CooperativeItem } from "../components/Navbar";
 import FederationOnboarding from "../components/FederationOnboarding";
 
 export default function FederationDashboard() {
